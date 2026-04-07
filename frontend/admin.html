@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - MNghi</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .admin-wrapper { max-width: 1100px; margin: 30px auto; padding: 0 16px; }
+        .admin-tabs { display: flex; border-bottom: 2px solid #f0f0f0; margin-bottom: 24px; gap: 4px; }
+        .admin-tab { padding: 10px 22px; cursor: pointer; font-weight: 600; color: #888; border-bottom: 3px solid transparent; margin-bottom: -2px; border-radius: 4px 4px 0 0; background: #f9f9f9; }
+        .admin-tab.active { color: #ee4d2d; border-bottom-color: #ee4d2d; background: white; }
+        .admin-section { display: none; }
+        .admin-section.active { display: block; }
+
+        /* Stats */
+        .stat-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+        .stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); text-align: center; }
+        .stat-card .stat-num { font-size: 28px; font-weight: bold; color: #ee4d2d; }
+        .stat-card .stat-label { font-size: 13px; color: #888; margin-top: 4px; }
+        .revenue-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .revenue-table th { background: #ee4d2d; color: white; padding: 12px 16px; text-align: left; font-size: 13px; }
+        .revenue-table td { padding: 11px 16px; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+        .revenue-table tr:last-child td { border-bottom: none; }
+        .chart-bar-wrap { margin-top: 28px; }
+        .chart-bar-wrap h3 { margin-bottom: 14px; }
+        .bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 160px; padding: 0 8px; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 16px; }
+        .bar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .bar { width: 100%; background: #ee4d2d; border-radius: 4px 4px 0 0; min-height: 4px; transition: height 0.4s; }
+        .bar-label { font-size: 11px; color: #888; white-space: nowrap; }
+        .bar-val { font-size: 11px; font-weight: bold; color: #ee4d2d; }
+
+        /* Orders */
+        .order-filter-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .order-filter-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 13px; font-weight: 600; color: #555; }
+        .order-filter-btn.active { background: #ee4d2d; color: white; border-color: #ee4d2d; }
+        .admin-order-card { background: white; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .admin-order-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .admin-order-id { font-weight: bold; font-size: 14px; }
+        .admin-order-date { color: #888; font-size: 12px; }
+        .admin-order-total { color: #ee4d2d; font-weight: bold; font-size: 15px; }
+        .admin-order-info { font-size: 13px; color: #555; margin-bottom: 10px; }
+        .admin-order-items { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .admin-order-item { display: flex; align-items: center; gap: 6px; background: #fafafa; border-radius: 6px; padding: 6px 10px; font-size: 13px; }
+        .admin-order-item img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; }
+        .status-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .status-select { padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; cursor: pointer; outline: none; }
+        .status-update-btn { padding: 6px 16px; background: #ee4d2d; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .status-update-btn:hover { background: #d43f22; }
+        .order-status-badge { padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .status-pending   { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #cce5ff; color: #004085; }
+        .status-shipping  { background: #d4edda; color: #155724; }
+        .status-delivered { background: #d1ecf1; color: #0c5460; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+
+        /* Products */
+        .admin-product-grid { margin-top: 20px; }
+        .admin-product-card { background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 14px; padding: 12px 16px; margin-bottom: 10px; }
+        .admin-product-card img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+        .btn-edit-prod  { padding: 6px 14px; background: #fff3cd; color: #856404; border: 1px solid #ffc107; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .btn-edit-prod:hover { background: #ffe69c; }
+        .btn-del-prod   { padding: 6px 14px; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .btn-del-prod:hover { background: #f1aeb5; }
+        .admin-add-form { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .admin-add-form label { font-size: 12px; font-weight: 600; color: #555; }
+        .admin-add-form input, .admin-add-form select, .admin-add-form textarea { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none; box-sizing: border-box; }
+        .admin-add-form .full-col { grid-column: 1 / -1; }
+        .admin-form-group { display: flex; flex-direction: column; gap: 4px; }
+        .admin-submit-btn, .form-submit-btn { grid-column: 1 / -1; padding: 10px; background: #ee4d2d; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .admin-submit-btn:hover, .form-submit-btn:hover { background: #d43f22; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-top">
+            <div class="logo"><a href="index.html" style="text-decoration:none;color:inherit">MNghi Admin</a></div>
+            <div class="user-actions" id="user-actions"></div>
+        </div>
+        <nav><ul>
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="orders.html">Đơn hàng</a></li>
+        </ul></nav>
+    </header>
+
+    <main>
+        <div class="admin-wrapper">
+            <div class="admin-tabs">
+                <div class="admin-tab active" onclick="switchAdminTab('stats')">📊 Thống kê</div>
+                <div class="admin-tab" onclick="switchAdminTab('orders')">📦 Đơn hàng</div>
+                <div class="admin-tab" onclick="switchAdminTab('products')">🛒 Sản phẩm</div>
+            </div>
+
+            <!-- STATS TAB -->
+            <div class="admin-section active" id="tab-stats">
+                <div class="stat-cards" id="stat-cards"></div>
+                <div class="chart-bar-wrap">
+                    <h3>Doanh thu theo danh mục</h3>
+                    <div class="bar-chart" id="bar-chart"></div>
+                </div>
+                <br>
+                <h3>Top sản phẩm bán chạy</h3>
+                <table class="revenue-table" id="top-products-table">
+                    <thead><tr><th>#</th><th>Sản phẩm</th><th>Số lượng</th><th>Doanh thu</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- ORDERS TAB -->
+            <div class="admin-section" id="tab-orders">
+                <div class="order-filter-row" id="order-filters">
+                    <button class="order-filter-btn active" onclick="filterOrders('all', this)">Tất cả</button>
+                    <button class="order-filter-btn" onclick="filterOrders('pending', this)">Chờ xác nhận</button>
+                    <button class="order-filter-btn" onclick="filterOrders('confirmed', this)">Đã xác nhận</button>
+                    <button class="order-filter-btn" onclick="filterOrders('shipping', this)">Đang giao</button>
+                    <button class="order-filter-btn" onclick="filterOrders('delivered', this)">Đã nhận</button>
+                    <button class="order-filter-btn" onclick="filterOrders('cancelled', this)">Đã huỷ</button>
+                </div>
+                <div id="admin-orders-list"></div>
+            </div>
+
+            <!-- PRODUCTS TAB -->
+            <div class="admin-section" id="tab-products">
+                <h3>Thêm / Sửa sản phẩm</h3>
+                <form id="add-product-form" class="admin-add-form">
+                    <input type="hidden" id="prod-id">
+                    <div class="admin-form-group"><label>Tên sản phẩm</label><input type="text" id="prod-name" required></div>
+                    <div class="admin-form-group"><label>Giá số (VD: 500000)</label><input type="number" id="prod-price" min="0" required></div>
+                    <div class="admin-form-group"><label>Danh mục</label>
+                        <select id="prod-category">
+                            <option>Điện thoại</option><option>Laptop</option><option>Thời trang</option><option>Đồ gia dụng</option>
+                        </select>
+                    </div>
+                    <div class="admin-form-group"><label>Thương hiệu</label><input type="text" id="prod-brand"></div>
+                    <div class="admin-form-group"><label>Giảm giá (%)</label><input type="number" id="prod-discount" min="0" max="100" value="0"></div>
+                    <div class="admin-form-group"><label>Tồn kho</label><input type="number" id="prod-stock" min="0" value="10"></div>
+                    <div class="admin-form-group full-col"><label>URL ảnh</label><input type="text" id="prod-image"></div>
+                    <div class="admin-form-group full-col"><label>Mô tả</label><textarea id="prod-description" rows="2"></textarea></div>
+                    <button type="submit" class="form-submit-btn">➕ Thêm sản phẩm</button>
+                </form>
+                <div class="admin-product-grid" id="product-list" style="margin-top:24px"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer><p>&copy; 2026 MNghi. Tất cả quyền được bảo lưu.</p></footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        // Admin guard — dùng userInfo từ JWT (giống auth.js)
+        const adminUser = (function() { try { return JSON.parse(localStorage.getItem('userInfo')); } catch(e) { return null; } })();
+        if (!adminUser || adminUser.role !== 'admin') {
+            alert('Bạn không có quyền truy cập trang admin!');
+            window.location.href = 'index.html';
+        }
+
+        const STATUS_LABELS = { pending:'Chờ xác nhận', confirmed:'Đã xác nhận', shipping:'Đang giao hàng', delivered:'Đã nhận hàng', cancelled:'Đã huỷ' };
+        let currentFilter = 'all';
+
+        function switchAdminTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(t =>
+                t.classList.toggle('active', t.textContent.toLowerCase().includes(
+                    tab === 'stats' ? 'thống' : tab === 'orders' ? 'đơn' : 'sản'
+                ))
+            );
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('tab-' + tab)?.classList.add('active');
+            if (tab === 'stats')    renderStats();
+            if (tab === 'orders')   loadAdminOrders();
+            if (tab === 'products') loadProducts();
+        }
+
+        async function loadProductsAdmin() {
+            const outEl = document.getElementById('out-of-stock-section');
+            const allEl = document.getElementById('all-products-section');
+            if (!outEl) return;
+            outEl.innerHTML = '<p style="color:#888;padding:10px">Đang tải...</p>';
+            try {
+                const res = await fetch(API_URL + '/products');
+                const products = await res.json();
+                const outOfStock = products.filter(p => (p.stock ?? 0) <= 0);
+
+                // Section hết hàng
+                outEl.innerHTML = outOfStock.length ? `
+                    <div style="background:#fff5f5;border:1px solid #ffd0d0;border-radius:10px;padding:16px">
+                        <h3 style="margin:0 0 12px;font-size:15px;color:#dc3545">🔴 Hết hàng (${outOfStock.length} sản phẩm)</h3>
+                        <div style="display:flex;flex-direction:column;gap:8px">
+                            ${outOfStock.map(p => `
+                            <div style="background:#fff;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+                                <img src="${p.image||''}" onerror="this.style.display='none'"
+                                     style="width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0">
+                                <div style="flex:1;min-width:0">
+                                    <div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</div>
+                                    <div style="color:#888;font-size:12px">${p.category||''} · ${(p.price_number||parseInt(String(p.price).replace(/[^\d]/g,''))||0).toLocaleString('vi-VN')}₫</div>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+                                    <input type="number" id="qs-${p.id}" value="10" min="1"
+                                        style="width:64px;padding:5px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;text-align:center">
+                                    <button onclick="quickStock(${p.id})"
+                                        style="padding:6px 12px;background:#28a745;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">
+                                        + Nhập kho
+                                    </button>
+                                </div>
+                            </div>`).join('')}
+                        </div>
+                    </div>` : `<div style="background:#f0fff4;border:1px solid #b2dfdb;border-radius:10px;padding:12px 18px;color:#28a745;font-weight:600">✅ Tất cả sản phẩm đều còn hàng</div>`;
+
+                // Danh sách tất cả sản phẩm
+                allEl.innerHTML = `
+                    <h3 style="font-size:15px;margin:0 0 10px">📦 Tất cả sản phẩm (${products.length})</h3>
+                    <div style="display:flex;flex-direction:column;gap:8px">
+                        ${products.map(p => `
+                        <div style="background:#fff;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+                            <img src="${p.image||''}" onerror="this.style.display='none'"
+                                 style="width:56px;height:56px;object-fit:cover;border-radius:6px;flex-shrink:0">
+                            <div style="flex:1;min-width:0">
+                                <div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</div>
+                                <div style="color:#ee4d2d;font-weight:bold;font-size:13px">${(p.price_number||parseInt(String(p.price).replace(/[^\d]/g,''))||0).toLocaleString('vi-VN')}₫</div>
+                                <div style="color:#888;font-size:12px">${p.category||''}</div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+                                <button onclick="adjustStock(${p.id},-1)"
+                                    style="width:30px;height:30px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+                                <input type="number" id="stock-val-${p.id}" value="${p.stock??0}" min="0"
+                                    style="width:60px;padding:4px 6px;border:1px solid #ddd;border-radius:6px;font-size:14px;font-weight:700;text-align:center;color:${(p.stock??0)<=0?'#dc3545':'#28a745'}">
+                                <button onclick="adjustStock(${p.id},1)"
+                                    style="width:30px;height:30px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+                                <button onclick="saveStock(${p.id})"
+                                    style="padding:5px 12px;background:#ee4d2d;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Lưu</button>
+                            </div>
+                        </div>`).join('')}
+                    </div>`;
+            } catch(e) {
+                outEl.innerHTML = `<p style="color:#ee4d2d">Lỗi tải sản phẩm: ${e.message}</p>`;
+            }
+        }
+
+        function adjustStock(id, delta) {
+            const input = document.getElementById('stock-val-' + id);
+            if (!input) return;
+            const newVal = Math.max(0, (parseInt(input.value) || 0) + delta);
+            input.value = newVal;
+            input.style.color = newVal <= 0 ? '#dc3545' : '#28a745';
+        }
+
+        async function saveStock(id) {
+            const input = document.getElementById('stock-val-' + id);
+            const newStock = parseInt(input?.value) ?? 0;
+            try {
+                const res = await fetch(API_URL + '/products/' + id);
+                const p = await res.json();
+                await fetch(API_URL + '/products/' + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('authToken') },
+                    body: JSON.stringify({ ...p, stock: newStock })
+                });
+                showAdminToast('Đã cập nhật tồn kho!');
+                loadProductsAdmin();
+            } catch(e) { showAdminToast('Lỗi: ' + e.message); }
+        }
+
+        async function quickStock(id) {
+            const qty = parseInt(document.getElementById('qs-' + id)?.value) || 0;
+            if (qty <= 0) return alert('Số lượng phải > 0');
+            try {
+                const res = await fetch(API_URL + '/products/' + id);
+                const p = await res.json();
+                const newStock = (p.stock || 0) + qty;
+                await fetch(API_URL + '/products/' + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('authToken') },
+                    body: JSON.stringify({ ...p, stock: newStock })
+                });
+                showAdminToast('Đã nhập thêm ' + qty + ' sản phẩm!');
+                loadProductsAdmin();
+            } catch(e) { showAdminToast('Lỗi: ' + e.message); }
+        }
+
+        // Cache đơn hàng từ API
+        let allOrders = [];
+
+        // ---- STATS ----
+        async function renderStats() {
+            try {
+                const res = await fetch(API_URL + '/orders/stats', { headers: { Authorization: 'Bearer ' + localStorage.getItem('authToken') } });
+                const s = await res.json();
+                document.getElementById('stat-cards').innerHTML = `
+                    <div class="stat-card"><div class="stat-num">${(s.totalRevenue||0).toLocaleString()}₫</div><div class="stat-label">Tổng doanh thu</div></div>
+                    <div class="stat-card"><div class="stat-num">${s.totalOrders||0}</div><div class="stat-label">Tổng đơn hàng</div></div>
+                    <div class="stat-card"><div class="stat-num">${s.delivered||0}</div><div class="stat-label">Đơn đã giao</div></div>
+                    <div class="stat-card"><div class="stat-num">${s.pending||0}</div><div class="stat-label">Chờ xác nhận</div></div>
+                `;
+                // Bar chart top sản phẩm
+                const top = (s.topProducts || []).slice(0, 8);
+                const maxVal = Math.max(...top.map(p => p.revenue), 1);
+                document.getElementById('bar-chart').innerHTML = top.length
+                    ? top.map(p => `
+                        <div class="bar-item">
+                            <div class="bar-val">${(p.revenue/1000000).toFixed(1)}M</div>
+                            <div class="bar" style="height:${Math.round((p.revenue/maxVal)*110)}px"></div>
+                            <div class="bar-label">${p.name.length > 10 ? p.name.slice(0,10)+'…' : p.name}</div>
+                        </div>`).join('')
+                    : '<p style="color:#aaa;margin:auto">Chưa có dữ liệu doanh thu</p>';
+                // Top products table
+                const tbody = document.querySelector('#top-products-table tbody');
+                tbody.innerHTML = (s.topProducts||[]).length
+                    ? (s.topProducts).map((p, i) => `<tr><td>${i+1}</td><td>${p.name}</td><td>${p.qty}</td><td style="color:#ee4d2d;font-weight:bold">${(p.revenue||0).toLocaleString()}₫</td></tr>`).join('')
+                    : '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px">Chưa có đơn hàng nào được giao</td></tr>';
+            } catch(e) {
+                console.error('Stats error:', e);
+            }
+        }
+
+        // ---- ORDERS ----
+        async function loadAdminOrders() {
+            try {
+                const res = await fetch(API_URL + '/orders', { headers: { Authorization: 'Bearer ' + localStorage.getItem('authToken') } });
+                allOrders = await res.json();
+                renderAdminOrders(currentFilter);
+            } catch(e) {
+                document.getElementById('admin-orders-list').innerHTML = '<p style="text-align:center;color:#e74c3c;padding:30px">Lỗi tải đơn hàng. Kiểm tra kết nối server.</p>';
+            }
+        }
+
+        function renderAdminOrders(filter = 'all') {
+            const list = filter === 'all' ? allOrders : allOrders.filter(o => o.status === filter);
+            const container = document.getElementById('admin-orders-list');
+            if (!list.length) {
+                container.innerHTML = '<p style="text-align:center;color:#aaa;padding:30px">Không có đơn hàng nào</p>';
+                return;
+            }
+            container.innerHTML = list.map(o => `
+                <div class="admin-order-card">
+                    <div class="admin-order-header">
+                        <div>
+                            <div class="admin-order-id">Mã: ${o.id}</div>
+                            <div class="admin-order-date">${o.created_at ? new Date(o.created_at).toLocaleString('vi-VN') : (o.date||'')}</div>
+                        </div>
+                        <span class="order-status-badge status-${o.status}">${STATUS_LABELS[o.status] || o.status}</span>
+                        <div class="admin-order-total">${(o.total||0).toLocaleString()}₫</div>
+                    </div>
+                    <div class="admin-order-info">👤 ${o.name||o.username||''} &nbsp;|&nbsp; 📞 ${o.phone||''} &nbsp;|&nbsp; 📍 ${o.address||''}</div>
+                    <div class="admin-order-items">
+                        ${(o.items||[]).map(item => `
+                            <div class="admin-order-item">
+                                ${item.image ? `<img src="${item.image}" onerror="this.style.display='none'">` : ''}
+                                <span>${item.name} x${item.quantity}</span>
+                            </div>`).join('')}
+                    </div>
+                    <div class="status-row">
+                        <span style="font-size:13px;font-weight:600;color:#555">Cập nhật trạng thái:</span>
+                        <select class="status-select" id="status-${o.id}">
+                            <option value="pending" ${o.status==='pending'?'selected':''}>Chờ xác nhận</option>
+                            <option value="confirmed" ${o.status==='confirmed'?'selected':''}>Đã xác nhận</option>
+                            <option value="shipping" ${o.status==='shipping'?'selected':''}>Đang giao hàng</option>
+                            <option value="delivered" ${o.status==='delivered'?'selected':''}>Đã nhận hàng</option>
+                            <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Đã huỷ</option>
+                        </select>
+                        <button class="status-update-btn" onclick="updateOrderStatus('${o.id}')">Lưu</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function filterOrders(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.order-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderAdminOrders(filter);
+        }
+
+        async function updateOrderStatus(orderId) {
+            const newStatus = document.getElementById('status-' + orderId).value;
+            try {
+                const res = await fetch(API_URL + '/orders/' + orderId + '/status', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('authToken') },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (!res.ok) throw new Error();
+                // Cập nhật cache local
+                const idx = allOrders.findIndex(o => o.id === orderId);
+                if (idx !== -1) allOrders[idx].status = newStatus;
+                renderAdminOrders(currentFilter);
+                renderStats();
+                showAdminToast('Đã cập nhật trạng thái đơn hàng!');
+            } catch(e) {
+                showAdminToast('Lỗi cập nhật trạng thái!');
+            }
+        }
+
+        function showAdminToast(msg) {
+            let t = document.getElementById('admin-toast');
+            if (!t) { t = document.createElement('div'); t.id = 'admin-toast'; t.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:10px 24px;border-radius:8px;font-size:14px;z-index:9999;'; document.body.appendChild(t); }
+            t.textContent = msg; t.style.display = 'block';
+            clearTimeout(t._t); t._t = setTimeout(() => { t.style.display = 'none'; }, 2000);
+        }
+
+        // Init
+        renderStats();
+        loadAdminOrders();
+    </script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn hàng của tôi - MNghi</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { background: #f5f5f5; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+        .orders-wrap { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
+
+        /* ── Filter tabs ── */
+        .filter-tabs { display: flex; background: #fff; border-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,.08); margin-bottom: 12px; overflow-x: auto; }
+        .ftab { flex: 1; min-width: 100px; padding: 14px 8px; text-align: center; font-size: 13px; font-weight: 500; color: #666; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: color .2s, border-color .2s; }
+        .ftab:hover { color: #ee4d2d; }
+        .ftab.active { color: #ee4d2d; border-bottom-color: #ee4d2d; font-weight: 700; }
+
+        /* ── Order card ── */
+        .order-card { background: #fff; border-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,.08); margin-bottom: 12px; overflow: hidden; }
+
+        /* Card header */
+        .oc-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid #f5f5f5; gap: 8px; flex-wrap: wrap; }
+        .oc-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .oc-id   { font-weight: 700; color: #333; font-size: 14px; }
+        .oc-date { color: #999; font-size: 12px; }
+        .oc-sep  { color: #ddd; }
+
+        /* Status badge */
+        .oc-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+        .badge-pending   { background: #fff3cd; color: #856404; }
+        .badge-confirmed { background: #cce5ff; color: #004085; }
+        .badge-shipping  { background: #d4edda; color: #155724; }
+        .badge-delivered { background: #d1ecf1; color: #0c5460; }
+        .badge-cancelled { background: #f8d7da; color: #721c24; }
+
+        /* Progress steps */
+        .oc-steps { display: flex; align-items: flex-start; padding: 16px 20px 8px; }
+        .step-item { flex: 1; text-align: center; position: relative; }
+        .step-item::before { content: ''; position: absolute; top: 11px; left: calc(-50% + 12px); right: calc(50% + 12px); height: 2px; background: #e0e0e0; }
+        .step-item:first-child::before { display: none; }
+        .step-item.done::before { background: #ee4d2d; }
+        .step-dot { width: 24px; height: 24px; border-radius: 50%; background: #e0e0e0; color: #aaa; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; position: relative; z-index: 1; }
+        .step-item.done .step-dot  { background: #ee4d2d; color: #fff; }
+        .step-item.cur  .step-dot  { background: #ee4d2d; color: #fff; box-shadow: 0 0 0 4px #fde8e4; }
+        .step-label { font-size: 10px; color: #bbb; line-height: 1.3; }
+        .step-item.done .step-label { color: #ee4d2d; font-weight: 600; }
+        .step-item.cur  .step-label { color: #ee4d2d; font-weight: 700; }
+
+        /* Delivery banner */
+        .delivery-banner { display: flex; align-items: center; gap: 10px; margin: 0 20px 12px; padding: 10px 14px; border-radius: 8px; font-size: 13px; }
+        .delivery-banner.pending   { background: #fff8e1; color: #7d5a00; border-left: 3px solid #ffc107; }
+        .delivery-banner.confirmed { background: #e8f4fd; color: #0055aa; border-left: 3px solid #339af0; }
+        .delivery-banner.shipping  { background: #eaf7ee; color: #1a6e35; border-left: 3px solid #40c057; }
+        .delivery-banner.delivered { background: #eaf7ee; color: #1a6e35; border-left: 3px solid #40c057; }
+        .delivery-banner.cancelled { background: #fdf0f0; color: #b91c1c; border-left: 3px solid #e03131; }
+        .delivery-banner .db-icon  { font-size: 18px; flex-shrink: 0; }
+        .delivery-banner .db-date  { font-weight: 700; }
+        .delivery-banner .db-sub   { font-size: 11px; opacity: .75; margin-top: 1px; }
+
+        /* Items */
+        .oc-items { padding: 0 20px 4px; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #f5f5f5; padding-top: 12px; }
+        .oc-item  { display: flex; align-items: center; gap: 12px; }
+        .oc-item img { width: 60px; height: 60px; object-fit: contain; border: 1px solid #f0f0f0; border-radius: 4px; flex-shrink: 0; }
+        .oc-item-img-placeholder { width: 60px; height: 60px; background: #f5f5f5; border-radius: 4px; flex-shrink: 0; }
+        .oc-item-info { flex: 1; min-width: 0; }
+        .oc-item-name  { font-size: 13px; color: #333; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .oc-item-meta  { font-size: 12px; color: #999; margin-top: 2px; }
+        .oc-item-price { font-size: 14px; font-weight: 700; color: #ee4d2d; white-space: nowrap; }
+
+        /* Footer */
+        .oc-foot { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-top: 1px solid #f5f5f5; margin-top: 10px; gap: 8px; flex-wrap: wrap; }
+        .oc-addr { color: #666; font-size: 12px; line-height: 1.6; }
+        .oc-total-wrap { text-align: right; }
+        .oc-total-label { font-size: 12px; color: #999; }
+        .oc-total-val   { font-size: 17px; font-weight: 800; color: #ee4d2d; }
+
+        /* Empty */
+        .empty-orders { text-align: center; padding: 70px 20px; color: #aaa; }
+        .empty-orders .em-icon { font-size: 72px; margin-bottom: 12px; }
+        .empty-orders p  { font-size: 15px; margin: 0 0 8px; color: #777; }
+        .empty-orders small { font-size: 13px; }
+        .btn-shop { display: inline-block; margin-top: 18px; padding: 10px 32px; background: #ee4d2d; color: #fff; border-radius: 2px; text-decoration: none; font-weight: 700; font-size: 14px; }
+
+        /* Loading */
+        .loading-box { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-top">
+        <div class="logo"><a href="index.html" style="text-decoration:none;color:inherit">MNghi</a></div>
+        <div class="user-actions" id="user-actions"></div>
+    </div>
+    <nav><ul>
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="profile.html">Hồ sơ</a></li>
+        <li><a href="wishlist.html">Yêu thích</a></li>
+        <li><a href="cart.html">Giỏ hàng</a></li>
+    </ul></nav>
+</header>
+
+<main>
+<div class="orders-wrap">
+    <h2 style="margin:0 0 16px;font-size:18px;color:#333">📦 Đơn hàng của tôi</h2>
+
+    <!-- Filter tabs -->
+    <div class="filter-tabs">
+        <div class="ftab active" data-filter="all">Tất cả</div>
+        <div class="ftab" data-filter="pending">Chờ xác nhận</div>
+        <div class="ftab" data-filter="confirmed">Đã xác nhận</div>
+        <div class="ftab" data-filter="shipping">Đang giao</div>
+        <div class="ftab" data-filter="delivered">Đã nhận</div>
+        <div class="ftab" data-filter="cancelled">Đã huỷ</div>
+    </div>
+
+    <div id="orders-list"></div>
+</div>
+</main>
+
+<footer style="background:#222;color:#666;text-align:center;padding:16px;font-size:12px">
+    <p style="margin:0">&copy; 2026 MNghi. Tất cả quyền được bảo lưu.</p>
+</footer>
+
+<script src="js/auth.js"></script>
+<script>
+    // API_URL khai báo trong auth.js — không khai báo lại
+    const STATUS_LABELS = {
+        pending:   'Chờ xác nhận',
+        confirmed: 'Đã xác nhận',
+        shipping:  'Đang giao hàng',
+        delivered: 'Đã nhận hàng',
+        cancelled: 'Đã huỷ'
+    };
+    const STATUS_STEPS   = ['pending', 'confirmed', 'shipping', 'delivered'];
+    const DELIVERY_DAYS  = { pending: 5, confirmed: 4, shipping: 2 };
+    const STATUS_ICONS   = { pending:'🕐', confirmed:'✔️', shipping:'🚚', delivered:'✅', cancelled:'❌' };
+
+    let allOrders = [];
+    let currentFilter = 'all';
+
+    function fmtDate(date) {
+        return date.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    function deliveryBannerHtml(status, createdAt) {
+        if (status === 'cancelled') {
+            return `<div class="delivery-banner cancelled">
+                <span class="db-icon">❌</span>
+                <div><div>Đơn hàng đã bị huỷ</div></div>
+            </div>`;
+        }
+        if (status === 'delivered') {
+            return `<div class="delivery-banner delivered">
+                <span class="db-icon">✅</span>
+                <div><div>Đơn hàng đã được giao thành công!</div></div>
+            </div>`;
+        }
+        const days = DELIVERY_DAYS[status] || 5;
+        const est  = new Date(createdAt);
+        est.setDate(est.getDate() + days);
+        return `<div class="delivery-banner ${status}">
+            <span class="db-icon">🚚</span>
+            <div>
+                <div>Dự kiến giao: <span class="db-date">${fmtDate(est)}</span></div>
+                <div class="db-sub">Khoảng ${days} ngày kể từ ngày đặt hàng</div>
+            </div>
+        </div>`;
+    }
+
+    function orderCardHtml(o) {
+        const items    = o.items || [];
+        const stepIdx  = STATUS_STEPS.indexOf(o.status);
+        const isCancelled = o.status === 'cancelled';
+
+        const steps = STATUS_STEPS.map((s, i) => {
+            const done = !isCancelled && i <= stepIdx;
+            const cur  = !isCancelled && i === stepIdx;
+            return `<div class="step-item ${done ? 'done' : ''} ${cur ? 'cur' : ''}">
+                <div class="step-dot">${done ? '✓' : i + 1}</div>
+                <div class="step-label">${STATUS_LABELS[s]}</div>
+            </div>`;
+        }).join('');
+
+        const itemsHtml = items.map(item => `
+            <div class="oc-item">
+                ${item.image
+                    ? `<img src="${item.image}" alt="${item.name}" onerror="this.style.display='none'">`
+                    : `<div class="oc-item-img-placeholder"></div>`}
+                <div class="oc-item-info">
+                    <div class="oc-item-name">${item.name}</div>
+                    <div class="oc-item-meta">x${item.quantity}</div>
+                </div>
+                <div class="oc-item-price">${Number(item.price).toLocaleString('vi-VN')}₫</div>
+            </div>`).join('');
+
+        const dateStr = o.created_at ? new Date(o.created_at).toLocaleString('vi-VN') : '';
+
+        return `<div class="order-card">
+            <div class="oc-head">
+                <div class="oc-meta">
+                    <span class="oc-id">Mã đơn: #${o.id}</span>
+                    <span class="oc-sep">·</span>
+                    <span class="oc-date">${dateStr}</span>
+                </div>
+                <span class="oc-badge badge-${o.status}">${STATUS_ICONS[o.status] || ''} ${STATUS_LABELS[o.status] || o.status}</span>
+            </div>
+
+            <div class="oc-steps">${steps}</div>
+
+            ${deliveryBannerHtml(o.status, o.created_at)}
+
+            <div class="oc-items">${itemsHtml}</div>
+
+            <div class="oc-foot">
+                <div class="oc-addr">
+                    📍 ${o.address}<br>
+                    👤 ${o.name} &nbsp;·&nbsp; 📞 ${o.phone}
+                </div>
+                <div class="oc-total-wrap">
+                    <div class="oc-total-label">Tổng thanh toán</div>
+                    <div class="oc-total-val">${Number(o.total).toLocaleString('vi-VN')}₫</div>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function renderList() {
+        const container = document.getElementById('orders-list');
+        const filtered  = currentFilter === 'all'
+            ? allOrders
+            : allOrders.filter(o => o.status === currentFilter);
+
+        if (!filtered.length) {
+            container.innerHTML = `<div class="empty-orders">
+                <div class="em-icon">📭</div>
+                <p>Không có đơn hàng nào</p>
+                <small>${currentFilter === 'all' ? 'Hãy đặt hàng đầu tiên của bạn!' : 'Không có đơn hàng ở trạng thái này.'}</small>
+                ${currentFilter === 'all' ? '<br><a href="index.html" class="btn-shop">Mua sắm ngay →</a>' : ''}
+            </div>`;
+        } else {
+            container.innerHTML = filtered.map(orderCardHtml).join('');
+        }
+    }
+
+    async function loadOrders() {
+        const container = document.getElementById('orders-list');
+        const token = localStorage.getItem('authToken');
+
+        if (!token) {
+            container.innerHTML = `<div class="empty-orders">
+                <div class="em-icon">🔒</div>
+                <p>Bạn cần đăng nhập để xem đơn hàng</p>
+                <a href="login.html" class="btn-shop">Đăng nhập ngay</a>
+            </div>`;
+            return;
+        }
+
+        container.innerHTML = '<div class="loading-box">⏳ Đang tải đơn hàng...</div>';
+
+        try {
+            const res = await fetch(`${API_URL}/orders/mine`, {
+                headers: { Authorization: 'Bearer ' + token }
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Lỗi server');
+
+            allOrders = data;
+            renderList();
+        } catch (err) {
+            container.innerHTML = `<div class="empty-orders">
+                <div class="em-icon">⚠️</div>
+                <p style="color:#ee4d2d">${err.message}</p>
+            </div>`;
+        }
+    }
+
+    // Filter tabs
+    document.querySelectorAll('.ftab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentFilter = tab.dataset.filter;
+            renderList();
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', loadOrders);
+</script>
+</body>
+</html>

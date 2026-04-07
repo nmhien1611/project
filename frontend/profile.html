@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ Sơ Của Tôi - MNghi</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { background: #f5f5f5; }
+        .profile-page { max-width: 980px; margin: 28px auto; padding: 0 16px; display: flex; gap: 20px; align-items: flex-start; }
+
+        /* ---- Sidebar ---- */
+        .profile-sidebar {
+            width: 210px;
+            flex-shrink: 0;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 20px 0 12px;
+        }
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 20px 18px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .sidebar-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #ee4d2d;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .sidebar-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .sidebar-username { font-weight: bold; font-size: 14px; color: #333; }
+        .sidebar-edit { font-size: 12px; color: #888; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+        .sidebar-edit:hover { color: #ee4d2d; }
+        .sidebar-nav { margin-top: 10px; }
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #555;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+        .sidebar-nav-item:hover { color: #ee4d2d; }
+        .sidebar-nav-item.active { color: #ee4d2d; font-weight: 600; }
+        .sidebar-nav-item svg { flex-shrink: 0; }
+        .sidebar-section-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            padding: 12px 20px 4px;
+        }
+        .sidebar-sub-item {
+            display: block;
+            padding: 8px 20px 8px 34px;
+            font-size: 13px;
+            color: #555;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+        .sidebar-sub-item:hover { color: #ee4d2d; }
+        .sidebar-sub-item.active { color: #ee4d2d; font-weight: 600; }
+
+        /* ---- Main content ---- */
+        .profile-main {
+            flex: 1;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .profile-main-header {
+            padding: 20px 28px 18px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .profile-main-header h2 { margin: 0 0 4px; font-size: 18px; color: #333; }
+        .profile-main-header p { margin: 0; color: #888; font-size: 13px; }
+
+        .profile-body {
+            display: flex;
+            gap: 0;
+        }
+        .profile-form-area {
+            flex: 1;
+            padding: 24px 28px;
+        }
+        .profile-avatar-area {
+            width: 190px;
+            flex-shrink: 0;
+            border-left: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 28px 20px;
+            gap: 14px;
+        }
+
+        /* Form rows */
+        .pf-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 0;
+        }
+        .pf-label {
+            width: 140px;
+            flex-shrink: 0;
+            text-align: right;
+            padding-right: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+        .pf-value { flex: 1; }
+        .pf-value input[type="text"],
+        .pf-value input[type="email"] {
+            width: 100%;
+            max-width: 300px;
+            padding: 9px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .pf-value input:focus { border-color: #ee4d2d; }
+        .pf-value input[readonly] { background: #fafafa; color: #888; cursor: default; }
+        .pf-hint { font-size: 12px; color: #aaa; margin-top: 5px; }
+        .pf-action-link { color: #ee4d2d; font-size: 13px; cursor: pointer; text-decoration: none; }
+        .pf-action-link:hover { text-decoration: underline; }
+        .email-row { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .email-masked { color: #333; }
+
+        /* Gender radio */
+        .gender-group { display: flex; gap: 20px; align-items: center; }
+        .gender-group label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #333; cursor: pointer; }
+        .gender-group input[type="radio"] { accent-color: #ee4d2d; width: 15px; height: 15px; }
+
+        /* Birthday selects */
+        .birthday-group { display: flex; gap: 10px; }
+        .birthday-group select {
+            flex: 1;
+            padding: 9px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+            color: #555;
+            background: white;
+        }
+        .birthday-group select:focus { border-color: #ee4d2d; }
+
+        /* Save button */
+        .pf-save-btn {
+            padding: 10px 32px;
+            background: #ee4d2d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .pf-save-btn:hover { background: #d43f22; }
+        .pf-msg { font-size: 13px; margin-left: 16px; }
+        .pf-msg.ok { color: #26aa99; }
+        .pf-msg.err { color: #ee4d2d; }
+
+        /* Avatar upload */
+        .avatar-circle {
+            width: 104px;
+            height: 104px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+        .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-placeholder svg { opacity: 0.4; }
+        .choose-photo-btn {
+            padding: 8px 18px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .choose-photo-btn:hover { border-color: #ee4d2d; color: #ee4d2d; }
+        .avatar-hint { font-size: 11px; color: #aaa; text-align: center; line-height: 1.6; }
+
+        /* Password section */
+        .pw-section { display: none; padding: 24px 28px; }
+        .pw-section.active { display: block; }
+        .profile-form-area.active { display: block; }
+        .profile-form-area.hidden { display: none; }
+
+        @media (max-width: 768px) {
+            .profile-page { flex-direction: column; }
+            .profile-sidebar { width: 100%; }
+            .profile-body { flex-direction: column; }
+            .profile-avatar-area { width: 100%; border-left: none; border-top: 1px solid #f0f0f0; }
+            .pf-label { width: 100px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-top">
+            <div class="logo"><a href="index.html" style="text-decoration:none;color:inherit">MNghi</a></div>
+            <div class="user-actions" id="user-actions"></div>
+        </div>
+        <nav><ul>
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="orders.html">Đơn hàng</a></li>
+            <li><a href="wishlist.html">Yêu thích</a></li>
+            <li><a href="cart.html">Giỏ hàng</a></li>
+        </ul></nav>
+    </header>
+
+    <main>
+        <div class="profile-page">
+            <!-- SIDEBAR -->
+            <div class="profile-sidebar">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar" id="sidebar-avatar">?</div>
+                    <div>
+                        <div class="sidebar-username" id="sidebar-username">...</div>
+                        <div id="sidebar-role" style="margin:4px 0"></div>
+                        <div class="sidebar-edit" onclick="showSection('info')">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            Sửa Hồ Sơ
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-nav">
+                    <div class="sidebar-section-label">Tài Khoản Của Tôi</div>
+                    <a class="sidebar-sub-item active" id="nav-info" onclick="showSection('info')">Hồ Sơ</a>
+                    <a class="sidebar-sub-item" id="nav-password" onclick="showSection('password')">Đổi Mật Khẩu</a>
+                    <div style="height:6px"></div>
+                    <a href="orders.html" class="sidebar-nav-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ee4d2d" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                        Đơn Mua
+                    </a>
+                    <a href="wishlist.html" class="sidebar-nav-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ee4d2d" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        Yêu Thích
+                    </a>
+                    <a href="admin.html" class="sidebar-nav-item" id="admin-nav-link" style="display:none;color:#e65100">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e65100" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        Quản trị Admin
+                    </a>
+                </div>
+            </div>
+
+            <!-- MAIN -->
+            <div class="profile-main">
+                <!-- HỒ SƠ -->
+                <div id="section-info">
+                    <div class="profile-main-header">
+                        <h2>Hồ Sơ Của Tôi</h2>
+                        <p>Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
+                    </div>
+                    <div class="profile-body">
+                        <div class="profile-form-area">
+                            <div class="pf-row">
+                                <div class="pf-label">Tên đăng nhập</div>
+                                <div class="pf-value">
+                                    <input type="text" id="edit-username" title="Tên đăng nhập" placeholder="Tên đăng nhập">
+                                </div>
+                            </div>
+                            <div class="pf-row">
+                                <div class="pf-label">Tên</div>
+                                <div class="pf-value">
+                                    <input type="text" id="edit-displayname" placeholder="Nhập tên hiển thị">
+                                </div>
+                            </div>
+                            <div class="pf-row">
+                                <div class="pf-label">Email</div>
+                                <div class="pf-value">
+                                    <div class="email-row">
+                                        <span class="email-masked" id="email-masked"></span>
+                                        <a class="pf-action-link" onclick="toggleEmailEdit()">Thay Đổi</a>
+                                    </div>
+                                    <input type="email" id="edit-email" placeholder="Nhập email mới" style="display:none;margin-top:8px;max-width:300px;width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:4px;font-size:14px;outline:none">
+                                </div>
+                            </div>
+                            <div class="pf-row">
+                                <div class="pf-label">Số điện thoại</div>
+                                <div class="pf-value">
+                                    <div class="email-row">
+                                        <span id="phone-display" style="color:#333;font-size:14px"></span>
+                                        <a class="pf-action-link" id="phone-action" onclick="togglePhoneEdit()">Thêm</a>
+                                    </div>
+                                    <input type="tel" id="edit-phone" placeholder="Nhập số điện thoại" style="display:none;margin-top:8px;max-width:300px;width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:4px;font-size:14px;outline:none">
+                                </div>
+                            </div>
+                            <div class="pf-row">
+                                <div class="pf-label">Giới tính</div>
+                                <div class="pf-value">
+                                    <div class="gender-group">
+                                        <label><input type="radio" name="gender" value="Nam"> Nam</label>
+                                        <label><input type="radio" name="gender" value="Nữ"> Nữ</label>
+                                        <label><input type="radio" name="gender" value="Khác"> Khác</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pf-row">
+                                <div class="pf-label">Ngày sinh</div>
+                                <div class="pf-value">
+                                    <div class="birthday-group">
+                                        <select id="bd-day"><option value="">Ngày</option></select>
+                                        <select id="bd-month"><option value="">Tháng</option></select>
+                                        <select id="bd-year"><option value="">Năm</option></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pf-row" style="margin-top:8px">
+                                <div class="pf-label"></div>
+                                <div class="pf-value" style="display:flex;align-items:center;gap:12px">
+                                    <button class="pf-save-btn" onclick="saveInfo()">Lưu</button>
+                                    <span class="pf-msg" id="info-msg"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Avatar area -->
+                        <div class="profile-avatar-area">
+                            <div class="avatar-circle" id="avatar-circle">
+                                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            </div>
+                            <div style="position:relative;display:inline-block">
+                                <button class="choose-photo-btn">Chọn Ảnh</button>
+                                <input type="file" id="avatar-file" accept="image/*" title="Chọn ảnh đại diện"
+                                    style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0"
+                                    onchange="uploadAvatar(event)">
+                            </div>
+                            <div class="avatar-hint">Dung lượng file tối đa 1 MB<br>Định dạng: JPEG, PNG</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ĐỔI MẬT KHẨU -->
+                <div id="section-password" style="display:none">
+                    <div class="profile-main-header">
+                        <h2>Đổi Mật Khẩu</h2>
+                        <p>Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác</p>
+                    </div>
+                    <div style="padding:24px 28px;max-width:460px">
+                        <div class="pf-row">
+                            <div class="pf-label">Mật khẩu hiện tại</div>
+                            <div class="pf-value"><input type="password" id="old-password" placeholder="Nhập mật khẩu hiện tại" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:4px;font-size:14px;outline:none;box-sizing:border-box"></div>
+                        </div>
+                        <div class="pf-row">
+                            <div class="pf-label">Mật khẩu mới</div>
+                            <div class="pf-value"><input type="password" id="new-password" placeholder="Tối thiểu 6 ký tự" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:4px;font-size:14px;outline:none;box-sizing:border-box"></div>
+                        </div>
+                        <div class="pf-row">
+                            <div class="pf-label">Xác nhận mật khẩu</div>
+                            <div class="pf-value"><input type="password" id="confirm-password" placeholder="Nhập lại mật khẩu mới" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:4px;font-size:14px;outline:none;box-sizing:border-box"></div>
+                        </div>
+                        <div class="pf-row">
+                            <div class="pf-label"></div>
+                            <div class="pf-value" style="display:flex;align-items:center;gap:12px">
+                                <button class="pf-save-btn" onclick="savePassword()">Xác nhận</button>
+                                <span class="pf-msg" id="password-msg"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer><p>&copy; 2026 MNghi. Tất cả quyền được bảo lưu.</p></footer>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const API = 'http://localhost:3001/api';
+        let currentUserData = null;
+
+        // Fill birthday dropdowns
+        const dayEl = document.getElementById('bd-day');
+        const monEl = document.getElementById('bd-month');
+        const yearEl = document.getElementById('bd-year');
+        for (let d = 1; d <= 31; d++) dayEl.innerHTML += `<option value="${d}">${d}</option>`;
+        for (let m = 1; m <= 12; m++) monEl.innerHTML += `<option value="${m}">Tháng ${m}</option>`;
+        const curYear = new Date().getFullYear();
+        for (let y = curYear; y >= 1940; y--) yearEl.innerHTML += `<option value="${y}">${y}</option>`;
+
+        function maskEmail(email) {
+            if (!email || !email.includes('@')) return '';
+            const [name, domain] = email.split('@');
+            return name.slice(0, 2) + '*'.repeat(Math.max(name.length - 2, 3)) + '@' + domain;
+        }
+
+        function renderRoleBadge(role) {
+            if (role === 'admin') return `<span style="background:#fff3e0;color:#e65100;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;border:1px solid #ffcc80">⚙️ Admin</span>`;
+            return `<span style="background:#e8f5e9;color:#2e7d32;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;border:1px solid #a5d6a7">🛍️ User</span>`;
+        }
+
+        async function loadUserProfile() {
+            const token = getToken();
+            if (!token) { window.location.href = 'login.html'; return; }
+
+            try {
+                const res  = await fetch(`${API}/users/me`, { headers: { Authorization: 'Bearer ' + token } });
+                if (!res.ok) { logout(); return; }
+                currentUserData = await res.json();
+            } catch {
+                // Fallback to localStorage
+                currentUserData = getUser();
+                if (!currentUserData) { window.location.href = 'login.html'; return; }
+            }
+
+            const u = currentUserData;
+            document.getElementById('edit-username').value   = u.username || '';
+            document.getElementById('edit-displayname').value = u.displayname || '';
+            document.getElementById('edit-email').value      = u.email || '';
+            document.getElementById('email-masked').textContent = maskEmail(u.email || '');
+            document.getElementById('sidebar-username').textContent = u.username || '';
+
+            // Role badge in sidebar
+            const roleEl = document.getElementById('sidebar-role');
+            if (roleEl) roleEl.innerHTML = renderRoleBadge(u.role);
+
+            // Phone
+            if (u.phone) {
+                document.getElementById('phone-display').textContent = u.phone;
+                document.getElementById('phone-action').textContent = 'Thay Đổi';
+            }
+
+            // Gender
+            if (u.gender) {
+                const radio = document.querySelector(`input[name="gender"][value="${u.gender}"]`);
+                if (radio) radio.checked = true;
+            }
+
+            // Birthday
+            if (u.birthday) {
+                const parts = u.birthday.split('T')[0].split('-');
+                dayEl.value   = parseInt(parts[2]);
+                monEl.value   = parseInt(parts[1]);
+                yearEl.value  = parts[0];
+            }
+
+            // Avatar (từ localStorage hoặc avatar_url)
+            const saved = localStorage.getItem('avatar_' + u.username) || u.avatar_url;
+            const sidebarAv   = document.getElementById('sidebar-avatar');
+            const avatarCircle = document.getElementById('avatar-circle');
+            const imgStyle = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
+            if (saved) {
+                avatarCircle.innerHTML = `<img src="${saved}" alt="avatar" style="${imgStyle}">`;
+                sidebarAv.innerHTML   = `<img src="${saved}" alt="avatar" style="${imgStyle}">`;
+            } else {
+                sidebarAv.textContent = (u.username || '?')[0].toUpperCase();
+            }
+
+            // Show admin panel link if admin
+            if (u.role === 'admin') {
+                const adminLink = document.getElementById('admin-nav-link');
+                if (adminLink) adminLink.style.display = 'flex';
+            }
+        }
+
+        function showSection(sec) {
+            document.getElementById('section-info').style.display     = sec === 'info' ? 'block' : 'none';
+            document.getElementById('section-password').style.display = sec === 'password' ? 'block' : 'none';
+            document.getElementById('nav-info').classList.toggle('active', sec === 'info');
+            document.getElementById('nav-password').classList.toggle('active', sec === 'password');
+        }
+
+        function toggleEmailEdit() {
+            const inp = document.getElementById('edit-email');
+            inp.style.display = inp.style.display === 'none' ? 'block' : 'none';
+            if (inp.style.display === 'block') inp.focus();
+        }
+
+        function togglePhoneEdit() {
+            const inp = document.getElementById('edit-phone');
+            inp.style.display = inp.style.display === 'none' ? 'block' : 'none';
+            if (inp.style.display === 'block') { inp.value = currentUserData?.phone || ''; inp.focus(); }
+        }
+
+        function uploadAvatar(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const msg = document.getElementById('info-msg');
+            const imgStyle = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
+            const objectUrl = URL.createObjectURL(file);
+            document.getElementById('avatar-circle').innerHTML = `<img src="${objectUrl}" alt="avatar" style="${imgStyle}">`;
+            document.getElementById('sidebar-avatar').innerHTML = `<img src="${objectUrl}" alt="avatar" style="${imgStyle}">`;
+            msg.textContent = '⏳ Đang lưu ảnh...'; msg.className = 'pf-msg ok';
+
+            const tempImg = new Image();
+            tempImg.onload = () => {
+                const MAX = 180, canvas = document.createElement('canvas');
+                let w = tempImg.width, h = tempImg.height;
+                if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+                else        { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(tempImg, 0, 0, w, h);
+                const compressed = canvas.toDataURL('image/jpeg', 0.8);
+                try {
+                    localStorage.setItem('avatar_' + currentUserData?.username, compressed);
+                    document.getElementById('avatar-circle').innerHTML = `<img src="${compressed}" alt="avatar" style="${imgStyle}">`;
+                    document.getElementById('sidebar-avatar').innerHTML = `<img src="${compressed}" alt="avatar" style="${imgStyle}">`;
+                    msg.textContent = '✅ Cập nhật ảnh thành công!';
+                } catch {
+                    msg.textContent = '⚠️ Ảnh hiển thị nhưng không lưu được (localStorage đầy)';
+                }
+                msg.className = 'pf-msg ok';
+                setTimeout(() => msg.textContent = '', 3000);
+            };
+            tempImg.onerror = () => { msg.textContent = '❌ Không thể xử lý ảnh!'; msg.className = 'pf-msg err'; };
+            tempImg.src = objectUrl;
+        }
+
+        async function saveInfo() {
+            const token = getToken();
+            if (!token) { window.location.href = 'login.html'; return; }
+
+            const newUsername = document.getElementById('edit-username').value.trim();
+            const displayname = document.getElementById('edit-displayname').value.trim();
+            const emailInput  = document.getElementById('edit-email');
+            const phoneInput  = document.getElementById('edit-phone');
+            const gender      = document.querySelector('input[name="gender"]:checked')?.value || '';
+            const day = dayEl.value, month = monEl.value, year = yearEl.value;
+            const birthday = (year && month && day)
+                ? `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}` : '';
+
+            const msg = document.getElementById('info-msg');
+            if (!newUsername || newUsername.length < 3) {
+                msg.textContent = '❌ Tên đăng nhập phải có ít nhất 3 ký tự!';
+                msg.className = 'pf-msg err'; return;
+            }
+
+            let phone = currentUserData?.phone || '';
+            if (phoneInput.style.display !== 'none' && phoneInput.value.trim()) {
+                phone = phoneInput.value.trim();
+                if (!/^0\d{9}$/.test(phone)) {
+                    msg.textContent = '❌ Số điện thoại không hợp lệ! Nhập 10 chữ số bắt đầu bằng 0.';
+                    msg.className = 'pf-msg err'; return;
+                }
+            }
+
+            const body = { username: newUsername, displayname, phone, gender, birthday };
+            if (emailInput.style.display !== 'none' && emailInput.value.trim()) {
+                body.email = emailInput.value.trim();
+            }
+
+            try {
+                const res  = await fetch(`${API}/users/me`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (!res.ok) { msg.textContent = '❌ ' + (data.error || 'Lưu thất bại!'); msg.className = 'pf-msg err'; return; }
+
+                // Cập nhật localStorage
+                const updated = { ...getUser(), ...data.user };
+                localStorage.setItem('userInfo', JSON.stringify(updated));
+                localStorage.setItem('currentUser', updated.username);
+                currentUserData = updated;
+
+                document.getElementById('sidebar-username').textContent = updated.username;
+                document.getElementById('email-masked').textContent = maskEmail(updated.email || '');
+                emailInput.style.display = 'none';
+                if (updated.phone) {
+                    document.getElementById('phone-display').textContent = updated.phone;
+                    document.getElementById('phone-action').textContent = 'Thay Đổi';
+                }
+                phoneInput.style.display = 'none';
+
+                msg.textContent = '✅ Lưu thành công!'; msg.className = 'pf-msg ok';
+                setTimeout(() => msg.textContent = '', 2500);
+            } catch {
+                msg.textContent = '❌ Không kết nối được server!'; msg.className = 'pf-msg err';
+            }
+        }
+
+        async function savePassword() {
+            const oldPw     = document.getElementById('old-password').value;
+            const newPw     = document.getElementById('new-password').value;
+            const confirmPw = document.getElementById('confirm-password').value;
+            const msg       = document.getElementById('password-msg');
+
+            if (!oldPw) { msg.textContent = '❌ Vui lòng nhập mật khẩu hiện tại!'; msg.className = 'pf-msg err'; return; }
+            if (newPw.length < 6) { msg.textContent = '❌ Mật khẩu mới phải có ít nhất 6 ký tự!'; msg.className = 'pf-msg err'; return; }
+            if (newPw !== confirmPw) { msg.textContent = '❌ Mật khẩu xác nhận không khớp!'; msg.className = 'pf-msg err'; return; }
+
+            try {
+                const res  = await fetch(`${API}/auth/change-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + getToken() },
+                    body: JSON.stringify({ oldPassword: oldPw, newPassword: newPw })
+                });
+                const data = await res.json();
+                if (!res.ok) { msg.textContent = '❌ ' + (data.error || 'Đổi thất bại!'); msg.className = 'pf-msg err'; return; }
+                msg.textContent = '✅ Đổi mật khẩu thành công!'; msg.className = 'pf-msg ok';
+                ['old-password','new-password','confirm-password'].forEach(id => document.getElementById(id).value = '');
+            } catch {
+                msg.textContent = '❌ Không kết nối được server!'; msg.className = 'pf-msg err';
+            }
+        }
+
+        loadUserProfile();
+    </script>
+</body>
+</html>

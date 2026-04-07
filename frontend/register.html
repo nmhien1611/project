@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - MNghi</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .auth-page { min-height: 100vh; background: linear-gradient(135deg, #fff5f3 0%, #fff 60%); display: flex; align-items: center; justify-content: center; padding: 24px; }
+        .auth-card  { background: #fff; border-radius: 16px; box-shadow: 0 8px 40px rgba(238,77,45,.1); width: 100%; max-width: 440px; overflow: hidden; }
+        .auth-card-header { background: linear-gradient(135deg, #ee4d2d, #fb6231); padding: 28px 32px; text-align: center; }
+        .auth-card-header .logo-text { color: #fff; font-size: 26px; font-weight: 800; letter-spacing: 1px; }
+        .auth-card-header p { color: rgba(255,255,255,.85); font-size: 13px; margin: 6px 0 0; }
+        .auth-card-body { padding: 32px; }
+
+        /* Steps indicator */
+        .steps { display: flex; align-items: center; justify-content: center; margin-bottom: 28px; gap: 0; }
+        .step-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; border: 2px solid #ddd; color: #aaa; background: #fff; transition: all .3s; }
+        .step-dot.active { background: #ee4d2d; border-color: #ee4d2d; color: #fff; }
+        .step-dot.done   { background: #26aa99; border-color: #26aa99; color: #fff; }
+        .step-line { flex: 1; height: 2px; background: #eee; max-width: 60px; transition: background .3s; }
+        .step-line.done { background: #26aa99; }
+        .step-label { font-size: 11px; color: #aaa; text-align: center; margin-top: 4px; }
+        .steps-wrap { text-align: center; margin-bottom: 24px; }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px; }
+        .form-group input { width: 100%; padding: 11px 14px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; transition: border-color .2s; box-sizing: border-box; }
+        .form-group input:focus { border-color: #ee4d2d; }
+
+        .otp-row { display: flex; gap: 10px; }
+        .otp-row input { flex: 1; font-size: 20px; letter-spacing: 6px; text-align: center; font-weight: bold; }
+        .btn-send-otp { white-space: nowrap; padding: 11px 16px; background: #ee4d2d; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .2s; }
+        .btn-send-otp:hover:not(:disabled) { background: #d43f22; }
+        .btn-send-otp:disabled { background: #ccc; cursor: not-allowed; }
+
+        .btn-primary { width: 100%; padding: 13px; background: #ee4d2d; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background .2s; margin-top: 4px; }
+        .btn-primary:hover:not(:disabled) { background: #d43f22; }
+        .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-back { background: none; border: 1.5px solid #ddd; color: #666; width: 100%; padding: 10px; border-radius: 8px; font-size: 14px; cursor: pointer; margin-top: 8px; }
+        .btn-back:hover { border-color: #ee4d2d; color: #ee4d2d; }
+
+        .msg { font-size: 13px; text-align: center; min-height: 18px; margin: 8px 0 4px; padding: 0 4px; }
+        .msg.error   { color: #ee4d2d; }
+        .msg.success { color: #26aa99; }
+
+        .role-badge-display { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .role-user  { background: #e8f5e9; color: #2e7d32; }
+        .role-admin { background: #fff3e0; color: #e65100; }
+
+        details { margin-top: 8px; }
+        details summary { font-size: 12px; color: #aaa; cursor: pointer; -webkit-user-select: none; user-select: none; }
+        details[open] summary { color: #ee4d2d; }
+        .admin-secret-box { background: #fff8f6; border: 1px dashed #ee4d2d; border-radius: 8px; padding: 12px; margin-top: 8px; }
+
+        .auth-footer { text-align: center; margin-top: 20px; font-size: 13px; color: #888; }
+        .auth-footer a { color: #ee4d2d; font-weight: 600; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-card">
+            <div class="auth-card-header">
+                <div class="logo-text">🛍️ MNghi</div>
+                <p>Tạo tài khoản mới</p>
+            </div>
+            <div class="auth-card-body">
+
+                <!-- Steps indicator -->
+                <div class="steps-wrap">
+                    <div class="steps">
+                        <div class="step-dot active" id="dot-1">1</div>
+                        <div class="step-line" id="line-1"></div>
+                        <div class="step-dot" id="dot-2">2</div>
+                        <div class="step-line" id="line-2"></div>
+                        <div class="step-dot" id="dot-3">3</div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:4px 0">
+                        <span class="step-label">Email</span>
+                        <span class="step-label">Xác nhận</span>
+                        <span class="step-label">Thông tin</span>
+                    </div>
+                </div>
+
+                <!-- Bước 1: Nhập email -->
+                <div id="step-1">
+                    <div class="form-group">
+                        <label>📧 Địa chỉ email</label>
+                        <input type="email" id="reg-email" placeholder="ten@gmail.com" autocomplete="email">
+                    </div>
+                    <div class="msg" id="msg-1"></div>
+                    <button class="btn-primary" id="btn-step1">Gửi mã xác nhận →</button>
+                </div>
+
+                <!-- Bước 2: Nhập OTP -->
+                <div id="step-2" style="display:none">
+                    <p style="font-size:13px;color:#666;text-align:center;margin-bottom:20px">
+                        Mã OTP đã gửi đến<br><strong id="display-email" style="color:#ee4d2d"></strong>
+                    </p>
+                    <div class="form-group">
+                        <label>🔐 Mã xác nhận (6 chữ số)</label>
+                        <div class="otp-row">
+                            <input type="text" id="reg-otp" placeholder="000000" maxlength="6" inputmode="numeric">
+                            <button class="btn-send-otp" id="btn-resend">Gửi lại</button>
+                        </div>
+                        <div id="otp-timer" style="font-size:12px;color:#888;margin-top:6px;text-align:right"></div>
+                    </div>
+                    <div class="msg" id="msg-2"></div>
+                    <button class="btn-primary" id="btn-step2">Xác nhận →</button>
+                    <button class="btn-back" id="btn-back-1">← Quay lại</button>
+                </div>
+
+                <!-- Bước 3: Điền thông tin -->
+                <div id="step-3" style="display:none">
+                    <div style="background:#e8f5e9;border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:13px;color:#2e7d32">
+                        ✅ Email <strong id="confirm-email"></strong> đã xác nhận
+                    </div>
+                    <div class="form-group">
+                        <label>👤 Tên đăng nhập</label>
+                        <input type="text" id="reg-username" placeholder="Tối thiểu 3 ký tự" autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label>🔒 Mật khẩu</label>
+                        <input type="password" id="reg-password" placeholder="Tối thiểu 6 ký tự" autocomplete="new-password">
+                    </div>
+                    <details>
+                        <summary>Đăng ký tài khoản Admin?</summary>
+                        <div class="admin-secret-box">
+                            <label style="font-size:13px;color:#e65100;font-weight:600">🔑 Mã xác nhận Admin:</label>
+                            <input type="password" id="admin-secret" placeholder="Nhập mã admin..." style="margin-top:8px;width:100%;padding:9px 12px;border:1px solid #ffccbc;border-radius:6px;font-size:14px;box-sizing:border-box">
+                        </div>
+                    </details>
+                    <div class="msg" id="msg-3"></div>
+                    <button class="btn-primary" id="btn-register">🎉 Tạo tài khoản</button>
+                    <button class="btn-back" id="btn-back-2">← Quay lại</button>
+                </div>
+
+                <div class="auth-footer">
+                    Đã có tài khoản? <a href="login.html">Đăng nhập</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://localhost:3001/api';
+        let verifiedEmail = '';
+        let verifiedOTP   = '';
+        let timerInterval = null;
+
+        function setMsg(id, text, type = 'error') {
+            const el = document.getElementById(id);
+            el.textContent = text;
+            el.className = 'msg ' + type;
+        }
+
+        function updateSteps(current) {
+            [1,2,3].forEach(i => {
+                const dot  = document.getElementById('dot-' + i);
+                const line = document.getElementById('line-' + i);
+                if (i < current)  { dot.className = 'step-dot done'; dot.textContent = '✓'; }
+                else if (i === current) { dot.className = 'step-dot active'; dot.textContent = i; }
+                else { dot.className = 'step-dot'; dot.textContent = i; }
+                if (line) line.className = i < current ? 'step-line done' : 'step-line';
+            });
+        }
+
+        function showStep(n) {
+            [1,2,3].forEach(i => document.getElementById('step-' + i).style.display = i === n ? 'block' : 'none');
+            updateSteps(n);
+        }
+
+        // Đếm ngược OTP timer
+        function startTimer(seconds = 600) {
+            clearInterval(timerInterval);
+            const el = document.getElementById('otp-timer');
+            const resendBtn = document.getElementById('btn-resend');
+            resendBtn.disabled = true;
+
+            timerInterval = setInterval(() => {
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                el.textContent = `Mã hết hạn sau ${m}:${String(s).padStart(2,'0')}`;
+                seconds--;
+                if (seconds < 0) {
+                    clearInterval(timerInterval);
+                    el.textContent = 'Mã đã hết hạn. Vui lòng gửi lại.';
+                    el.style.color = '#ee4d2d';
+                    resendBtn.disabled = false;
+                }
+                if (seconds === 540) resendBtn.disabled = false; // cho gửi lại sau 60s
+            }, 1000);
+        }
+
+        // ── Bước 1: Gửi OTP ─────────────────────────────
+        async function sendOTP(email) {
+            const btn = document.getElementById('btn-step1');
+            btn.disabled = true; btn.textContent = 'Đang gửi...';
+            setMsg('msg-1', '');
+
+            try {
+                const res  = await fetch(`${API}/auth/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('display-email').textContent = email;
+                    showStep(2);
+                    startTimer();
+                    setMsg('msg-2', '📬 Kiểm tra hộp thư của bạn (kể cả Spam)', 'success');
+                } else {
+                    setMsg('msg-1', data.error || 'Không thể gửi OTP');
+                }
+            } catch {
+                setMsg('msg-1', 'Không kết nối được server!');
+            }
+            btn.disabled = false; btn.textContent = 'Gửi mã xác nhận →';
+        }
+
+        document.getElementById('btn-step1').addEventListener('click', async () => {
+            const email = document.getElementById('reg-email').value.trim();
+            if (!email) { setMsg('msg-1', 'Vui lòng nhập email!'); return; }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setMsg('msg-1', 'Email không hợp lệ!'); return; }
+            await sendOTP(email);
+        });
+
+        document.getElementById('reg-email').addEventListener('keydown', e => {
+            if (e.key === 'Enter') document.getElementById('btn-step1').click();
+        });
+
+        // Gửi lại OTP
+        document.getElementById('btn-resend').addEventListener('click', async () => {
+            const email = document.getElementById('reg-email').value.trim();
+            await sendOTP(email);
+        });
+
+        // ── Bước 2: Xác nhận OTP ────────────────────────
+        document.getElementById('btn-step2').addEventListener('click', () => {
+            const otp = document.getElementById('reg-otp').value.trim();
+            if (!otp || otp.length !== 6) { setMsg('msg-2', 'Vui lòng nhập đủ 6 chữ số!'); return; }
+            // Lưu OTP để gửi lên server khi đăng ký
+            verifiedEmail = document.getElementById('reg-email').value.trim();
+            verifiedOTP   = otp;
+            document.getElementById('confirm-email').textContent = verifiedEmail;
+            clearInterval(timerInterval);
+            showStep(3);
+            setMsg('msg-3', '');
+        });
+
+        document.getElementById('btn-back-1').addEventListener('click', () => {
+            clearInterval(timerInterval);
+            showStep(1);
+        });
+
+        // ── Bước 3: Tạo tài khoản ───────────────────────
+        document.getElementById('btn-register').addEventListener('click', async () => {
+            const btn         = document.getElementById('btn-register');
+            const username    = document.getElementById('reg-username').value.trim();
+            const password    = document.getElementById('reg-password').value;
+            const adminSecret = document.getElementById('admin-secret').value.trim();
+
+            if (!username) { setMsg('msg-3', 'Vui lòng nhập tên đăng nhập!'); return; }
+            if (username.length < 3) { setMsg('msg-3', 'Tên đăng nhập phải có ít nhất 3 ký tự!'); return; }
+            if (!password) { setMsg('msg-3', 'Vui lòng nhập mật khẩu!'); return; }
+            if (password.length < 6) { setMsg('msg-3', 'Mật khẩu phải có ít nhất 6 ký tự!'); return; }
+
+            btn.disabled = true; btn.textContent = '⏳ Đang tạo tài khoản...';
+            setMsg('msg-3', '');
+
+            try {
+                const res  = await fetch(`${API}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email: verifiedEmail, password, otp: verifiedOTP, adminSecret })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('authToken',   data.token);
+                    localStorage.setItem('currentUser', data.user.username);
+                    localStorage.setItem('userId',      String(data.user.id));
+                    localStorage.setItem('userInfo',    JSON.stringify(data.user));
+                    setMsg('msg-3', '🎉 Tạo tài khoản thành công! Đang chuyển trang...', 'success');
+                    setTimeout(() => window.location.href = 'index.html', 1200);
+                } else {
+                    setMsg('msg-3', data.error || 'Đăng ký thất bại');
+                    btn.disabled = false; btn.textContent = '🎉 Tạo tài khoản';
+                }
+            } catch {
+                setMsg('msg-3', 'Không kết nối được server!');
+                btn.disabled = false; btn.textContent = '🎉 Tạo tài khoản';
+            }
+        });
+
+        document.getElementById('btn-back-2').addEventListener('click', () => {
+            showStep(2);
+            startTimer(540); // còn 9 phút
+        });
+
+        // Enter trên OTP input
+        document.getElementById('reg-otp').addEventListener('keydown', e => {
+            if (e.key === 'Enter') document.getElementById('btn-step2').click();
+        });
+    </script>
+</body>
+</html>

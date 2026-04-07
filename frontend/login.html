@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - MNghi</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; min-height: 100vh; background: linear-gradient(135deg, #fff5f3 0%, #fff 60%); display: flex; align-items: center; justify-content: center; padding: 24px; }
+
+        .auth-card { background: #fff; border-radius: 16px; box-shadow: 0 8px 40px rgba(238,77,45,.12); width: 100%; max-width: 420px; overflow: hidden; }
+
+        .auth-header { background: linear-gradient(135deg, #ee4d2d, #fb6231); padding: 32px; text-align: center; }
+        .auth-header .logo { color: #fff; font-size: 28px; font-weight: 800; letter-spacing: 1px; }
+        .auth-header p { color: rgba(255,255,255,.85); font-size: 13px; margin-top: 8px; }
+
+        .auth-body { padding: 36px 32px 28px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 7px; }
+        .input-wrap { position: relative; }
+        .input-wrap input { width: 100%; padding: 12px 14px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; transition: border-color .2s; }
+        .input-wrap input:focus { border-color: #ee4d2d; }
+        .input-wrap .eye-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 16px; color: #aaa; padding: 4px; }
+        .input-wrap .eye-btn:hover { color: #666; }
+
+        .forgot-row { text-align: right; margin-top: -10px; margin-bottom: 18px; }
+        .forgot-row a { font-size: 12px; color: #ee4d2d; text-decoration: none; }
+        .forgot-row a:hover { text-decoration: underline; }
+
+        .btn-login { width: 100%; padding: 13px; background: #ee4d2d; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background .2s; }
+        .btn-login:hover:not(:disabled) { background: #d43f22; }
+        .btn-login:disabled { background: #ccc; cursor: not-allowed; }
+
+        .msg { font-size: 13px; text-align: center; min-height: 18px; margin: 10px 0 8px; padding: 0 4px; }
+        .msg.error   { color: #ee4d2d; }
+        .msg.success { color: #26aa99; }
+
+        .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #eee; }
+        .divider span { font-size: 12px; color: #bbb; white-space: nowrap; }
+
+        .role-info { display: flex; gap: 10px; margin-bottom: 20px; }
+        .role-card { flex: 1; border: 1.5px solid #eee; border-radius: 10px; padding: 12px 10px; text-align: center; cursor: pointer; transition: all .2s; }
+        .role-card:hover { border-color: #ee4d2d; background: #fff5f3; }
+        .role-card.active { border-color: #ee4d2d; background: #fff5f3; }
+        .role-card .role-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+        .role-card .role-name { font-size: 12px; font-weight: 600; color: #555; }
+        .role-card .role-desc { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+        .auth-footer { text-align: center; margin-top: 20px; font-size: 13px; color: #888; }
+        .auth-footer a { color: #ee4d2d; font-weight: 600; text-decoration: none; }
+
+        .back-home { display: block; text-align: center; margin-top: 14px; font-size: 12px; color: #bbb; text-decoration: none; }
+        .back-home:hover { color: #ee4d2d; }
+
+        /* Role badge after login */
+        .welcome-banner { display: none; text-align: center; padding: 24px 16px; }
+        .welcome-banner .badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 20px; border-radius: 20px; font-weight: 700; font-size: 14px; margin-bottom: 12px; }
+        .badge-admin { background: #fff3e0; color: #e65100; border: 1.5px solid #ffcc80; }
+        .badge-user  { background: #e8f5e9; color: #2e7d32; border: 1.5px solid #a5d6a7; }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="logo">🛍️ MNghi</div>
+            <p>Đăng nhập vào tài khoản của bạn</p>
+        </div>
+        <div class="auth-body">
+
+            <!-- Welcome banner (hiện sau login) -->
+            <div class="welcome-banner" id="welcome-banner">
+                <div class="badge" id="role-badge"></div>
+                <p style="font-size:14px;color:#555" id="welcome-msg"></p>
+                <p style="font-size:12px;color:#aaa;margin-top:6px">Đang chuyển trang...</p>
+            </div>
+
+            <!-- Login form -->
+            <div id="login-form-wrap">
+                <form id="login-form" autocomplete="on">
+                    <div class="form-group">
+                        <label>👤 Tên đăng nhập hoặc Email</label>
+                        <div class="input-wrap">
+                            <input type="text" id="username" placeholder="Nhập tên đăng nhập hoặc email" autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>🔒 Mật khẩu</label>
+                        <div class="input-wrap">
+                            <input type="password" id="password" placeholder="Nhập mật khẩu" autocomplete="current-password">
+                            <button type="button" class="eye-btn" id="eye-btn" title="Hiện/ẩn mật khẩu">👁️</button>
+                        </div>
+                    </div>
+                    <div class="forgot-row">
+                        <a href="forgot-password.html">Quên mật khẩu?</a>
+                    </div>
+                    <div class="msg" id="login-msg"></div>
+                    <button type="submit" class="btn-login" id="btn-login">Đăng nhập</button>
+                </form>
+
+                <div class="divider"><span>hoặc</span></div>
+
+                <div class="auth-footer">
+                    Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a>
+                </div>
+                <a href="index.html" class="back-home">← Quay về trang chủ</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://localhost:3001/api';
+
+        // Nếu đã đăng nhập thì redirect luôn
+        const existing = localStorage.getItem('authToken');
+        if (existing) {
+            try {
+                const u = JSON.parse(localStorage.getItem('userInfo'));
+                window.location.href = u?.role === 'admin' ? 'admin.html' : 'index.html';
+            } catch { localStorage.clear(); }
+        }
+
+        // Hiện/ẩn mật khẩu
+        document.getElementById('eye-btn').addEventListener('click', () => {
+            const inp = document.getElementById('password');
+            const btn = document.getElementById('eye-btn');
+            if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+            else { inp.type = 'password'; btn.textContent = '👁️'; }
+        });
+
+        function setMsg(text, type = 'error') {
+            const el = document.getElementById('login-msg');
+            el.textContent = text;
+            el.className = 'msg ' + type;
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('btn-login');
+
+            if (!username) { setMsg('Vui lòng nhập tên đăng nhập hoặc email!'); return; }
+            if (!password) { setMsg('Vui lòng nhập mật khẩu!'); return; }
+
+            btn.disabled = true;
+            btn.textContent = '⏳ Đang đăng nhập...';
+            setMsg('');
+
+            try {
+                const res  = await fetch(`${API}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Lưu thông tin đăng nhập
+                    localStorage.setItem('authToken',   data.token);
+                    localStorage.setItem('currentUser', data.user.username);
+                    localStorage.setItem('userId',      String(data.user.id));
+                    localStorage.setItem('userInfo',    JSON.stringify(data.user));
+
+                    // Hiện welcome banner theo role
+                    const isAdmin = data.user.role === 'admin';
+                    document.getElementById('login-form-wrap').style.display = 'none';
+                    const banner = document.getElementById('welcome-banner');
+                    const badge  = document.getElementById('role-badge');
+                    const wMsg   = document.getElementById('welcome-msg');
+
+                    badge.className = 'badge ' + (isAdmin ? 'badge-admin' : 'badge-user');
+                    badge.innerHTML = isAdmin ? '⚙️ Quản trị viên (Admin)' : '🛍️ Thành viên';
+                    wMsg.textContent = `Xin chào, ${data.user.username}! Đăng nhập thành công.`;
+                    banner.style.display = 'block';
+
+                    // Redirect theo role
+                    setTimeout(() => {
+                        const redirect = new URLSearchParams(location.search).get('redirect');
+                        if (redirect) { window.location.href = redirect; return; }
+                        window.location.href = isAdmin ? 'admin.html' : 'index.html';
+                    }, 1000);
+                } else {
+                    setMsg(data.error || 'Đăng nhập thất bại!');
+                    btn.disabled = false;
+                    btn.textContent = 'Đăng nhập';
+                }
+            } catch {
+                setMsg('Không kết nối được server!');
+                btn.disabled = false;
+                btn.textContent = 'Đăng nhập';
+            }
+        });
+    </script>
+</body>
+</html>
