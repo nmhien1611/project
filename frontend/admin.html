@@ -18,6 +18,8 @@
         .stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); text-align: center; }
         .stat-card .stat-num { font-size: 28px; font-weight: bold; color: #ee4d2d; }
         .stat-card .stat-label { font-size: 13px; color: #888; margin-top: 4px; }
+        .stat-card-link { cursor: pointer; transition: transform .15s, box-shadow .15s; }
+        .stat-card-link:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(238,77,45,.18); }
         .revenue-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         .revenue-table th { background: #ee4d2d; color: white; padding: 12px 16px; text-align: left; font-size: 13px; }
         .revenue-table td { padding: 11px 16px; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
@@ -286,10 +288,10 @@
                 const res = await fetch(API_URL + '/orders/stats', { headers: { Authorization: 'Bearer ' + localStorage.getItem('authToken') } });
                 const s = await res.json();
                 document.getElementById('stat-cards').innerHTML = `
-                    <div class="stat-card"><div class="stat-num">${(s.totalRevenue||0).toLocaleString()}₫</div><div class="stat-label">Tổng doanh thu</div></div>
-                    <div class="stat-card"><div class="stat-num">${s.totalOrders||0}</div><div class="stat-label">Tổng đơn hàng</div></div>
-                    <div class="stat-card"><div class="stat-num">${s.delivered||0}</div><div class="stat-label">Đơn đã giao</div></div>
-                    <div class="stat-card"><div class="stat-num">${s.pending||0}</div><div class="stat-label">Chờ xác nhận</div></div>
+                    <div class="stat-card"><div class="stat-num">${(s.totalRevenue||0).toLocaleString('vi-VN')}₫</div><div class="stat-label">Tổng doanh thu</div></div>
+                    <div class="stat-card stat-card-link" onclick="switchAdminTab('orders');filterOrders('all',document.querySelector('.order-filter-btn'))" title="Xem tất cả đơn hàng"><div class="stat-num">${s.totalOrders||0}</div><div class="stat-label">Tổng đơn hàng</div></div>
+                    <div class="stat-card stat-card-link" onclick="switchAdminTab('orders');filterOrders('delivered',document.querySelectorAll('.order-filter-btn')[4])" title="Xem đơn đã giao"><div class="stat-num">${s.delivered||0}</div><div class="stat-label">Đơn đã giao</div></div>
+                    <div class="stat-card stat-card-link" onclick="switchAdminTab('orders');filterOrders('pending',document.querySelectorAll('.order-filter-btn')[1])" title="Xem đơn chờ xác nhận"><div class="stat-num">${s.pending||0}</div><div class="stat-label">Chờ xác nhận</div></div>
                 `;
                 // Bar chart top sản phẩm
                 const top = (s.topProducts || []).slice(0, 8);

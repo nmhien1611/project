@@ -34,9 +34,9 @@ async function loadStats() {
         if (statCards) {
             statCards.innerHTML = `
                 <div class="stat-card"><div class="stat-num">${(s.totalRevenue||0).toLocaleString('vi-VN')}₫</div><div class="stat-label">Tổng doanh thu</div></div>
-                <div class="stat-card"><div class="stat-num">${s.totalOrders||0}</div><div class="stat-label">Tổng đơn hàng</div></div>
-                <div class="stat-card"><div class="stat-num">${s.delivered||0}</div><div class="stat-label">Đơn đã giao</div></div>
-                <div class="stat-card"><div class="stat-num">${s.pending||0}</div><div class="stat-label">Chờ xác nhận</div></div>`;
+                <div class="stat-card stat-card-link" onclick="switchAdminTab('orders');filterOrders('all',document.querySelector('.order-filter-btn'))" title="Xem tất cả đơn hàng"><div class="stat-num">${s.totalOrders||0}</div><div class="stat-label">Tổng đơn hàng</div></div>
+                <div class="stat-card stat-card-link" onclick="switchAdminTab('orders');filterOrders('delivered',document.querySelectorAll('.order-filter-btn')[4])" title="Xem đơn đã giao"><div class="stat-num">${s.delivered||0}</div><div class="stat-label">Đơn đã giao</div></div>
+                <div class="stat-card stat-card-link" onclick="switchAdminTab('orders');filterOrders('pending',document.querySelectorAll('.order-filter-btn')[1])" title="Xem đơn chờ xác nhận"><div class="stat-num">${s.pending||0}</div><div class="stat-label">Chờ xác nhận</div></div>`;
         }
 
         // Category bar chart
